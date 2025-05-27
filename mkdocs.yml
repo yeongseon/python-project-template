@@ -1,0 +1,12 @@
+site_name: Python Project Template
+site_description: A modern Python project template with CLI, tests, docs, and automation
+site_author: Yeongseon Choe
+repo_url: https://github.com/yeongseon/python-project-template
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+
+docs_dir: docs
