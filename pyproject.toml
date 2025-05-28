@@ -17,18 +17,18 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "black",             # Code formatter
-    "build",             # PEP 517 build frontend
-    "coverage",          # Code coverage tool
-    "hatch",             # Project & environment manager
-    "mkdocs",            # Documentation generator
-    "mkdocs-material",   # MkDocs theme
-    "mypy",              # Static type checker
-    "pre-commit",        # Git hook automation
-    "pytest",            # Testing framework
-    "ruff",              # Linter & formatter
-    "types-requests",    # Typing stubs for requests
-    "tox"                # Multi-environment testing
+    "black==24.4.2",  
+    "build",
+    "coverage",
+    "hatch",
+    "mkdocs",
+    "mkdocs-material",
+    "mypy==1.15.0",
+    "pre-commit",
+    "pytest",
+    "ruff==0.11.11",
+    "types-requests",
+    "tox"
 ]
 
 # ---------------------------------------------
