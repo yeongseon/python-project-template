@@ -1,14 +1,16 @@
+# src/mycli/cli.py
 import typer
 
 app = typer.Typer()
 
-@app.command()
-def hello(name: str = "world"):
-    """Say hello."""
-    typer.echo(f"Hello, {name}!")
 
-def main():
-    app()
+@app.command()
+def hello(name: str = "World") -> None:
+    """Simple greeting CLI"""
+    typer.echo(f"Hello, {name}")
+
+
+app.command()(hello)
 
 if __name__ == "__main__":
-    main()
+    app()

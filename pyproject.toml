@@ -1,3 +1,6 @@
+# ---------------------------------------------
+# 📦 Project Metadata
+# ---------------------------------------------
 [project]
 name = "mycli"
 version = "0.1.0"
@@ -5,39 +8,69 @@ description = "A modern Python project template."
 authors = [{ name = "Yeongseon Choe", email = "yeongseon.choe@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.9"
+
 dependencies = [
-    "typer[all]",
-    "rich",
-    "requests",
+    "typer[all]",  # CLI framework (modern, type-safe)
+    "rich",        # Terminal formatting
+    "requests"     # HTTP client
 ]
 
 [project.optional-dependencies]
 dev = [
-    "black",
-    "build",
-    "coverage",
-    "hatch",
-    "mkdocs",
-    "mkdocs-material",
-    "mypy",
-    "pre-commit",
-    "pytest",
-    "ruff",
-    "types-requests",
-    "tox"
+    "black",             # Code formatter
+    "build",             # PEP 517 build frontend
+    "coverage",          # Code coverage tool
+    "hatch",             # Project & environment manager
+    "mkdocs",            # Documentation generator
+    "mkdocs-material",   # MkDocs theme
+    "mypy",              # Static type checker
+    "pre-commit",        # Git hook automation
+    "pytest",            # Testing framework
+    "ruff",              # Linter & formatter
+    "types-requests",    # Typing stubs for requests
+    "tox"                # Multi-environment testing
 ]
 
-[project.scripts]
-mycli = "mycli.cli:main"
-
+# ---------------------------------------------
+# 🛠️ Build System Configuration
+# ---------------------------------------------
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+# ---------------------------------------------
+# 🐍 Hatch Environment Configuration
+# ---------------------------------------------
+[tool.hatch.envs.default]
+features = ["dev"]
+
+[tool.hatch.envs.default.scripts]
+format = "ruff format src tests && black src tests"
+style = "ruff check src tests"
+typecheck = "mypy src tests"
+lint = "hatch run style && hatch run typecheck"
+test = "pytest -v tests"
+cov = "coverage run -m pytest && coverage report && coverage html"
+docs = "mkdocs serve"
+precommit = "pre-commit run --all-files"
+precommit-install = "pre-commit install"
+
+# ---------------------------------------------
+# 🖥️ CLI Entrypoint
+# ---------------------------------------------
+[project.scripts]
+mycli = "mycli.cli:app"
+
+# ---------------------------------------------
+# 🎨 Code Formatting - Black
+# ---------------------------------------------
 [tool.black]
 line-length = 100
 target-version = ["py39"]
 
+# ---------------------------------------------
+# 🔍 Linting - Ruff
+# ---------------------------------------------
 [tool.ruff]
 line-length = 100
 target-version = "py39"
@@ -46,15 +79,31 @@ src = ["src"]
 fix = true
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B"]  # (추가) Bugbear 검사도 포함
+select = ["E", "F", "I", "B"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["mycli"]
 
+# ---------------------------------------------
+# 🧪 Type Checking - Mypy
+# ---------------------------------------------
+[tool.mypy]
+python_version = "3.9"
+strict = true
+warn_unused_configs = true
+show_error_codes = true
+pretty = true
+
+# ---------------------------------------------
+# 🧪 Testing - Pytest
+# ---------------------------------------------
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
 
+# ---------------------------------------------
+# 📊 Coverage Reporting
+# ---------------------------------------------
 [tool.coverage.run]
 branch = true
 source = ["src/mycli"]

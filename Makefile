@@ -1,86 +1,85 @@
-# Detect Python command
-ifeq ($(OS),Windows_NT)
-    PYTHON := $(shell where python)
-    VENV_PYTHON := .venv/Scripts/python.exe
-else
-    PYTHON := $(shell which python3)
-    VENV_PYTHON := .venv/bin/python
-endif
-
 # ------------------------------
-# 🔧 Environment Setup
+# 🧰 Hatch Environment Management
 # ------------------------------
-.PHONY: check-python
-check-python:
-	@$(PYTHON) -c "import sys; assert sys.version_info >= (3,9), '❌ Python 3.9+ is required'" || exit 1
-
-.PHONY: venv
-venv: check-python
-	@$(PYTHON) -m venv .venv
-	@echo "✅ Virtual environment created at .venv"
 
 .PHONY: install
-install: venv
-	@$(VENV_PYTHON) -m pip install --upgrade pip
-	@$(VENV_PYTHON) -m pip install -e .
-	@$(VENV_PYTHON) -m pip install -e ".[dev]"
-	
+install:
+	@hatch env create
+	@make precommit-install
+
+.PHONY: shell
+shell:
+	@hatch shell
+
 .PHONY: reset
-reset: clean-all venv install
+reset: clean-all install
 	@echo "🔁 Project reset complete."
+
+.PHONY: hatch-clean
+hatch-clean:
+	@hatch env remove || echo "⚠️ No hatch environment to remove"
 
 # ------------------------------
 # 🧹 Code Quality
 # ------------------------------
+
 .PHONY: format
 format:
-	@$(VENV_PYTHON) -m ruff format src tests
-	@$(VENV_PYTHON) -m black src tests
+	@hatch run format
 
-.PHONY: lint
-lint:
-	@$(VENV_PYTHON) -m ruff check src tests
+.PHONY: style
+style:
+	@hatch run style
 
 .PHONY: typecheck
 typecheck:
-	@$(VENV_PYTHON) -m mypy src tests
+	@hatch run typecheck
+
+.PHONY: lint
+lint:
+	@hatch run lint
 
 .PHONY: check
-check: lint typecheck test
-	@echo "✅ All checks passed!"
+check:
+	@make lint
+	@make typecheck
+	@echo "✅ Lint & type check passed!"
+
+.PHONY: check-all
+check-all:
+	@make check
+	@make test
+	@echo "✅ All checks passed including tests!"
 
 .PHONY: precommit
 precommit:
-	@$(VENV_PYTHON) -m pre_commit run --all-files
+	@hatch run precommit
 
 .PHONY: precommit-install
 precommit-install:
-	@$(VENV_PYTHON) -m pre_commit install
+	@hatch run precommit-install
 
 # ------------------------------
 # 🧪 Testing & Coverage
 # ------------------------------
+
 .PHONY: test
 test:
-ifeq ($(OS),Windows_NT)
-	@cmd /C "set PYTHONPATH=src && .venv\Scripts\python.exe -m pytest -v tests"
-else
-	@PYTHONPATH=src .venv/bin/python -m pytest -v tests
-endif
+	@echo "🔬 Running tests..."
+	@hatch run test
 
-.PHONY: coverage
-coverage:
-	@PYTHONPATH=src $(VENV_PYTHON) -m coverage run -m pytest
-	@$(VENV_PYTHON) -m coverage report
-	@$(VENV_PYTHON) -m coverage html
+.PHONY: cov
+cov:
+	@hatch run cov
 	@echo "📂 Open htmlcov/index.html in your browser to view the coverage report"
 
 # ------------------------------
 # 📦 Build & Release
 # ------------------------------
+
 .PHONY: build
 build:
-	@$(VENV_PYTHON) -m build
+	@hatch build
 
 .PHONY: release
 release:
@@ -112,62 +111,41 @@ publish:
 # ------------------------------
 # 📚 Documentation
 # ------------------------------
+
 .PHONY: docs
 docs:
-	@$(VENV_PYTHON) -m mkdocs serve
+	@hatch run docs
 
 # ------------------------------
 # 🩺 Diagnostic
 # ------------------------------
+
 .PHONY: doctor
 doctor:
-	@echo "🔍 Python version:"
-	@$(VENV_PYTHON) --version
-	@echo "🔍 Installed packages:"
-	@$(VENV_PYTHON) -m pip list
-	@echo "🔍 Azure Function Core Tools version:"
-	@func --version || echo "⚠️ func not found. Install with: npm i -g azure-functions-core-tools@4"
+	@echo "🔍 Python version:" && python --version
+	@echo "🔍 Installed packages:" && hatch env run pip list || echo "⚠️ No hatch env found"
+	@echo "🔍 Azure Function Core Tools version:" && func --version || echo "⚠️ func not found. Install with: npm i -g azure-functions-core-tools@4"
 	@echo "🔍 Pre-commit hook installed:"
-ifeq ($(OS),Windows_NT)
-	@if exist .git\hooks\pre-commit (echo ✅ Yes) else (echo ❌ No)
-else
 	@if [ -f .git/hooks/pre-commit ]; then echo ✅ Yes; else echo ❌ No; fi
-endif
 
 # ------------------------------
 # 🧹 Clean
 # ------------------------------
+
 .PHONY: clean
-ifeq ($(OS),Windows_NT)
 clean:
-	@for /d %%D in (*.egg-info dist build __pycache__ .pytest_cache) do if exist %%D rmdir /s /q %%D
-else
-clean:
-	rm -rf *.egg-info dist build __pycache__ .pytest_cache
-endif
+	@rm -rf *.egg-info dist build __pycache__ .pytest_cache
 
 .PHONY: clean-all
 clean-all: clean
-ifeq ($(OS),Windows_NT)
-	@if exist .venv rmdir /s /q .venv
-	@for /r %%D in (__pycache__) do if exist %%D rmdir /s /q %%D
-	@for /r %%F in (*.pyc *.pyo) do if exist %%F del /q %%F
-	@if exist .mypy_cache rmdir /s /q .mypy_cache
-	@if exist .ruff_cache rmdir /s /q .ruff_cache
-	@if exist .pytest_cache rmdir /s /q .pytest_cache
-	@if exist .coverage del /q .coverage
-	@if exist coverage.xml del /q coverage.xml
-	@if exist .DS_Store del /q .DS_Store
-else
-	rm -rf .venv
-	find . -type d -name "__pycache__" -exec rm -rf {} \;
-	find . -type f \( -name "*.pyc" -o -name "*.pyo" \) -delete
-	rm -rf .mypy_cache .ruff_cache .pytest_cache .coverage coverage.xml .DS_Store
-endif
+	@find . -type d -name "__pycache__" -exec rm -rf {} +
+	@find . -type f \( -name "*.pyc" -o -name "*.pyo" \) -delete
+	@rm -rf .mypy_cache .ruff_cache .pytest_cache .coverage coverage.xml .DS_Store
 
 # ------------------------------
 # 🆘 Help
 # ------------------------------
+
 .PHONY: help
 help:
 	@echo "📖 Available commands:" && \

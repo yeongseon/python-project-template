@@ -30,10 +30,11 @@
 git clone https://github.com/your-username/python-project-template.git
 cd python-project-template
 
-make venv                 # Create virtual environment (.venv/)
-make install              # Install dependencies
+make install              # Create Hatch environment & install dev dependencies
 make precommit-install    # Optional: install pre-commit Git hooks
 ```
+
+Hatch uses `[tool.hatch.envs.default] features = ["dev"]` to load optional development dependencies.
 
 ---
 
@@ -50,7 +51,6 @@ python-project-template/
 ├── docs/
 │   └── index.md
 ├── pyproject.toml
-├── hatch.toml
 ├── Makefile
 ├── README.md
 └── ...
@@ -61,10 +61,10 @@ python-project-template/
 ## 🧪 Usage
 
 ```bash
-mycli --help
+mycli hello --name Alice
 ```
 
-> This assumes your CLI entrypoint is defined in `mycli.cli:main`.
+> This assumes your CLI entrypoint is defined as a Typer app object (`mycli.cli:app`) with a `hello` command.
 
 ---
 
@@ -77,7 +77,8 @@ make format        # Format code using ruff & black
 make lint          # Lint using ruff
 make typecheck     # Type checking using mypy
 make test          # Run all tests using pytest
-make check         # Run lint + typecheck + test
+make check         # Run lint + typecheck only
+make check-all     # Run lint + typecheck + tests
 ```
 
 ---
@@ -85,8 +86,8 @@ make check         # Run lint + typecheck + test
 ### 🧼 Cleaning
 
 ```bash
-make clean         # Remove build artifacts but keep .venv
-make clean-all     # Remove .venv and all caches
+make clean         # Remove build artifacts but keep environment
+make clean-all     # Remove all build artifacts and Hatch environment
 ```
 
 ---
@@ -94,7 +95,7 @@ make clean-all     # Remove .venv and all caches
 ### 🧪 Code Coverage
 
 ```bash
-make coverage
+make cov
 ```
 
 Generates an HTML report in `htmlcov/index.html`.
@@ -107,7 +108,7 @@ Generates an HTML report in `htmlcov/index.html`.
 make reset
 ```
 
-Performs: `clean-all → venv → install`
+Performs: `clean-all → install`
 
 ---
 
@@ -125,12 +126,15 @@ Visit: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ```bash
 make precommit-install  # Install pre-commit hook
-make precommit          # Run all hooks manually (black, ruff, mypy)
+make precommit          # Run pre-commit hooks manually (black, ruff, mypy)
+
+# Note: Tests are NOT included in pre-commit hooks.
+# Run `make test` or `make check-all` for full validation.
 ```
 
 ---
 
-## 🚀 Release & Publishing (with hatch)
+## 🚀 Release & Publishing (with Hatch)
 
 ```bash
 make release-patch   # bump patch version, tag, push
@@ -140,6 +144,25 @@ make publish         # build and publish to PyPI using hatch
 ```
 
 ---
+
+
+---
+
+## 🔖 Common Commands (Summary)
+
+| Task                 | Command            |
+|----------------------|--------------------|
+| Format code          | `make format`      |
+| Lint code            | `make lint`        |
+| Type check           | `make typecheck`   |
+| Run tests            | `make test`        |
+| Run all checks       | `make check-all`   |
+| Pre-commit hooks     | `make precommit`   |
+| Coverage report      | `make cov`         |
+| Serve documentation  | `make docs`        |
+| Clean build artifacts| `make clean`       |
+| Full clean/reset     | `make clean-all` / `make reset` |
+
 
 ## 📄 License
 
