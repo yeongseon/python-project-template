@@ -5,8 +5,31 @@ repo_url: https://github.com/yeongseon/python-project-template
 
 theme:
   name: material
+  features:
+    - navigation.tabs
+    - content.code.annotate
 
 nav:
   - Home: index.md
+  - Development: development.md
+  - Release: release.md
+  - Documentation: document.md
+  - API Reference:
+      - CLI: reference/mycli.md
 
 docs_dir: docs
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: ["src"]
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
