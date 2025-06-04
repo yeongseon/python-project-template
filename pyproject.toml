@@ -21,19 +21,28 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "black",
-    "build",
-    "coverage",
-    "hatch",
-    "mkdocs",
-    "mkdocs-material",
-    "mkdocstrings[python]",
-    "mypy",
-    "pre-commit",
-    "pytest",
-    "ruff",
-    "types-requests",
-    "tox"
+    # 🔧 Build & packaging tools
+    "build",            # Build the project
+    "hatch",            # Project management and packaging
+
+    # 🧪 Testing tools
+    "pytest",           # Unit testing framework
+    "pytest-cov",       # Code coverage plugin for pytest
+    "tox",              # Multi-environment test runner
+
+    # 🎯 Code quality and static analysis
+    "black",            # Code formatter
+    "ruff",             # Linter and formatter
+    "mypy",             # Static type checker
+    "types-requests",   # Type stubs for the requests library
+
+    # 🔁 Pre-commit hooks
+    "pre-commit",       # Run linters and formatters before commits
+
+    # 📚 Documentation
+    "mkdocs",                   # Documentation generator
+    "mkdocs-material",         # Material theme for MkDocs
+    "mkdocstrings[python]"     # Auto-generate docs from docstrings
 ]
 
 [project.scripts]
