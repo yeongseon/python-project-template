@@ -4,7 +4,8 @@
 
 This script customizes the template by replacing placeholder values such as:
 - Project name (e.g., "Python Project Template")
-- Package name (e.g., "mycli")
+- PyPI name (e.g., "my-cli-tool")
+- Package name (e.g., "mycli_tool") — must be a valid Python identifier
 - Author name
 - Project description
 
@@ -13,18 +14,6 @@ Optionally, it can reset the Git history by deleting the existing `.git` folder 
 
 📦 Usage:
     python scripts/init.py
-
-💡 Example:
-    - Project name: My CLI Tool
-    - Package name: mycli_tool
-    - Author name: Alice Smith
-    - Description: A simple CLI to do awesome things
-    - Reset Git history?: y
-
-Result:
-    - Updates project files with your metadata
-    - Renames src/mycli → src/mycli_tool
-    - (Optional) Initializes a new Git repository with a clean history
 """
 
 import os
@@ -54,6 +43,7 @@ DEFAULTS = {
     "author": "Yeongseon Choe",
     "description": "A modern Python project template with CLI, tests, docs, and automation",
     "package_name": "mycli",
+    "pypi_name": "mycli",  # used in pyproject.toml `name`
 }
 
 
@@ -67,12 +57,14 @@ def replace_in_file(file_path: Path, replacements: dict[str, str]) -> None:
     file_path.write_text(text, encoding="utf-8")
 
 
-def main():
+def main() -> None:
     print("🔧 Project Initialization\n")
 
     # Prompt the user for inputs
-    project_name = input("📦 Project name (e.g. My CLI App): ").strip()
-    package_name = input("📂 Package name (e.g. mycli): ").strip()
+    project_name = input("📦 Project name (e.g. My CLI Tool): ").strip()
+    pypi_name = input("🔖 PyPI project name (e.g. my-cli-tool): ").strip()
+    raw_package_name = input("📂 Python package name (e.g. my_cli_tool): ").strip()
+    package_name = raw_package_name.replace("-", "_")  # Python-safe
     author = input("👤 Author name: ").strip()
     description = input("📝 Description: ").strip()
     reset_git = input("🔃 Reset Git history? (y/N): ").strip().lower() == "y"
@@ -83,6 +75,7 @@ def main():
         DEFAULTS["author"]: author,
         DEFAULTS["description"]: description,
         DEFAULTS["package_name"]: package_name,
+        DEFAULTS["pypi_name"]: pypi_name,  # for pyproject.toml `name`
     }
 
     # Apply replacements to files
